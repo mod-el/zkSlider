@@ -1,0 +1,35 @@
+.zkslide{
+    display: none;
+    position: relative;
+    overflow: hidden;
+
+    -webkit-transition: width 0.7s ease-out, height 0.7s ease-out;
+    -moz-transition: width 0.7s ease-out, height 0.7s ease-out;
+    -o-transition: width 0.7s ease-out, height 0.7s ease-out;
+    -ms-transition: width 0.7s ease-out, height 0.7s ease-out;
+    transition: width 0.7s ease-out, height 0.7s ease-out;
+}
+
+.zkslide-single{
+    -webkit-transition: opacity 0.7s ease-out;
+    -moz-transition: opacity 0.7s ease-out;
+    -o-transition: opacity 0.7s ease-out;
+    -ms-transition: opacity 0.7s ease-out;
+    transition: opacity 0.7s ease-out;
+}
+
+.zkslide-inner{
+    position: absolute;
+}
+
+.zkslide-inner.horizontal > div{
+    display: inline-block;
+}
+
+.zkslide-inner.animate{
+    -webkit-transition: top 0.7s ease-out, left 0.7s ease-out;
+    -moz-transition: top 0.7s ease-out, left 0.7s ease-out;
+    -o-transition: top 0.7s ease-out, left 0.7s ease-out;
+    -ms-transition: top 0.7s ease-out, left 0.7s ease-out;
+    transition: top 0.7s ease-out, left 0.7s ease-out;
+}
