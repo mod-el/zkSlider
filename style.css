@@ -16,10 +16,16 @@
     -o-transition: opacity 0.7s ease-out;
     -ms-transition: opacity 0.7s ease-out;
     transition: opacity 0.7s ease-out;
+    vertical-align: top;
 }
 
 .zkslide-inner{
     position: absolute;
+    overflow: visible;
+}
+
+.zkslide-inner.horizontal{
+    white-space: nowrap;
 }
 
 .zkslide-inner.horizontal > div{
