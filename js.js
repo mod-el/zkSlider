@@ -177,7 +177,9 @@ function zkFillStaticSlide(k, from){
 
 	var offset = 0;
 	zkSlides[k].cont.innerHTML = '';
-	for(i=0;i<parseInt(zkSlides[k].options['visible']);i++){
+
+	var min = Math.min(parseInt(zkSlides[k].options['visible']), zkSlides[k].slides.length);
+	for(i=0;i<min;i++){
 		var n = zkNormalizeN(k, from+i);
 		var div = zkGetSlideDiv(k, n, offset);
 		div = zkSlides[k].cont.appendChild(div);
