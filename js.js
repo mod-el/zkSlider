@@ -152,6 +152,11 @@ function zkActualMoveSlide(k, n){
 
 			var forResize = prep;
 			break;
+		case 'left':
+			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
+			zkSlides[k].cont.style.left = '0px';
+			var forResize = prep;
+			break;
 		case 'right':
 			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
 			var w = 0, c = 0, forResize = [];
@@ -311,9 +316,42 @@ function zkPrepareToMove(k, from, type){
 			}
 			return divs;
 			break;
+		case 'left':
+			// To scroll towards the left, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
+			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from;
+			zkSlides[k].cont.innerHTML = '';
+
+			var last_one = false, n_found = false, w = 0, divs = [];
+			do{
+				var div = zkGetSlideDiv(k, n);
+				div = zkSlides[k].cont.appendChild(div);
+
+				if(n==zkSlides[k].current){
+					n_found = true;
+				}else if(!n_found){
+					w += div.offsetWidth;
+				}
+
+				if(divs.length<parseInt(zkSlides[k].options['visible']))
+					divs.push(div);
+
+				if(last_one)
+					break;
+				n = zkNormalizeN(k, n+1);
+				if(n==end_vis)
+					last_one = true;
+			}while(true);
+
+			zkSlides[k].cont.style.left = (-w)+'px';
+			zkSlides[k].cont.offsetWidth; // Reflow
+
+			return divs;
+			break;
 		case 'right':
+			// To move towards the right...
 			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from, scrollTo = 1;
 			if(n<=end_vis){
+				// If the requested slide is in the current view, I know I'll have to scroll to it, and add the remaining slides after the last one
 				var temp = zkSlides[k].current;
 				while(temp!=n){
 					temp = zkNormalizeN(k, temp+1);
@@ -330,6 +368,7 @@ function zkPrepareToMove(k, from, type){
 					n = zkNormalizeN(k, n+1);
 				}
 			}else{
+				// If the requested slide is past the current view, I add as many slide as needed to cover the new view
 				var n = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])), end = zkNormalizeN(k, from+parseInt(zkSlides[k].options['visible'])-1), found = false;
 				scrollTo = parseInt(zkSlides[k].options['visible']);
 				while(true){
