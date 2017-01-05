@@ -428,13 +428,13 @@ function zkGetSingleSlideDimension(k){
 	if(typeof zkSlides[k]=='undefined')
 		return false;
 
-	if(zkSlides[k].options['force-width']=='true' && zkSlides[k].options['width']!==null){
+	if(zkSlides[k].options['force-width']=='true' && zkSlides[k].options['width']!==null && (zkSlides[k].options['type']=='fade' || zkSlides[k].options['direction']=='o')){
 		var w = Math.floor(zkSlides[k].mainCont.offsetWidth/parseInt(zkSlides[k].options['visible']))+'px';
 	}else{
 		var w = null;
 	}
 
-	if(zkSlides[k].options['force-height']=='true' && zkSlides[k].options['height']!==null){
+	if(zkSlides[k].options['force-height']=='true' && zkSlides[k].options['height']!==null && (zkSlides[k].options['type']=='slide' && zkSlides[k].options['direction']=='v')){
 		var h = Math.floor(zkSlides[k].mainCont.offsetHeight/parseInt(zkSlides[k].options['visible']))+'px';
 	}else{
 		var h = null;
