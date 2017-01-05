@@ -152,40 +152,31 @@ function zkActualMoveSlide(k, n){
 
 			var forResize = prep;
 			break;
-		case 'left':
+		case 'left': case 'up':
 			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
-			zkSlides[k].cont.style.left = '0px';
+			if(type=='up')
+				zkSlides[k].cont.style.top = '0px';
+			else
+				zkSlides[k].cont.style.left = '0px';
 			var forResize = prep;
 			break;
-		case 'right':
+		case 'right': case 'down':
 			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
 			var w = 0, c = 0, forResize = [];
 			for(var i in zkSlides[k].cont.children){
 				if(!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
 				c++;
 				if(c<prep){
-					w += zkSlides[k].cont.children[i].offsetWidth;
+					w += type=='down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
 				}
 				if(c>=prep){
 					forResize.push(zkSlides[k].cont.children[i]);
 				}
 			}
-			zkSlides[k].cont.style.left = (-w)+'px';
-			break;
-		case 'down':
-			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
-			var h = 0, c = 0, forResize = [];
-			for(var i in zkSlides[k].cont.children){
-				if(!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
-				c++;
-				if(c<prep){
-					h += zkSlides[k].cont.children[i].offsetHeight;
-				}
-				if(c>=prep){
-					forResize.push(zkSlides[k].cont.children[i]);
-				}
-			}
-			zkSlides[k].cont.style.top = (-h)+'px';
+			if(type=='down')
+				zkSlides[k].cont.style.top = (-w)+'px';
+			else
+				zkSlides[k].cont.style.left = (-w)+'px';
 			break;
 	}
 
@@ -332,8 +323,8 @@ function zkPrepareToMove(k, from, type){
 			}
 			return divs;
 			break;
-		case 'left':
-			// To scroll towards the left, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
+		case 'left': case 'up':
+			// To scroll towards the left/upperwards, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
 			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from;
 			zkSlides[k].cont.innerHTML = '';
 
@@ -345,7 +336,7 @@ function zkPrepareToMove(k, from, type){
 				if(n==zkSlides[k].current){
 					n_found = true;
 				}else if(!n_found){
-					w += div.offsetWidth;
+					w += type=='up' ? div.offsetHeight : div.offsetWidth;
 				}
 
 				if(divs.length<parseInt(zkSlides[k].options['visible']))
@@ -358,13 +349,17 @@ function zkPrepareToMove(k, from, type){
 					last_one = true;
 			}while(true);
 
-			zkSlides[k].cont.style.left = (-w)+'px';
+			if(type=='up'){
+				zkSlides[k].cont.style.top = (-w)+'px';
+			}else{
+				zkSlides[k].cont.style.left = (-w)+'px';
+			}
 			zkSlides[k].cont.offsetWidth; // Reflow
 
 			return divs;
 			break;
 		case 'right': case 'down':
-			// To move towards the right...
+			// To move towards the right/downwards...
 			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from, scrollTo = 1;
 
 			var inCurrentView = false, end_reached = false;
