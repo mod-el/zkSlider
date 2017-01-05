@@ -172,6 +172,21 @@ function zkActualMoveSlide(k, n){
 			}
 			zkSlides[k].cont.style.left = (-w)+'px';
 			break;
+		case 'down':
+			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
+			var h = 0, c = 0, forResize = [];
+			for(var i in zkSlides[k].cont.children){
+				if(!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
+				c++;
+				if(c<prep){
+					h += zkSlides[k].cont.children[i].offsetHeight;
+				}
+				if(c>=prep){
+					forResize.push(zkSlides[k].cont.children[i]);
+				}
+			}
+			zkSlides[k].cont.style.top = (-h)+'px';
+			break;
 	}
 
 	zkSlideResize(k, forResize);
@@ -181,6 +196,7 @@ function zkActualMoveSlide(k, n){
 			zkFillStaticSlide(k, n);
 			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class');
 			zkSlides[k].cont.style.left = '0px';
+			zkSlides[k].cont.style.top = '0px';
 			zkSlides[k].moving = false;
 			zkCheckMoveQueue();
 		};
@@ -347,7 +363,7 @@ function zkPrepareToMove(k, from, type){
 
 			return divs;
 			break;
-		case 'right':
+		case 'right': case 'down':
 			// To move towards the right...
 			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from, scrollTo = 1;
 
