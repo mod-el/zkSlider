@@ -350,7 +350,16 @@ function zkPrepareToMove(k, from, type){
 		case 'right':
 			// To move towards the right...
 			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from, scrollTo = 1;
-			if(n<=end_vis){
+
+			var inCurrentView = false, end_reached = false;
+			for(c=zkSlides[k].current;!end_reached;c=zkNormalizeN(k, c+1)){
+				if(c==n)
+					inCurrentView = true;
+				if(c==end_vis)
+					end_reached = true;
+			}
+
+			if(inCurrentView){
 				// If the requested slide is in the current view, I know I'll have to scroll to it, and add the remaining slides after the last one
 				var temp = zkSlides[k].current;
 				while(temp!=n){
