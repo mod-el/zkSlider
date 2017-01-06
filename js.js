@@ -30,7 +30,8 @@ function zkCheckSlides(){
 			'direction': 'o',
 			'force-width': 'true',
 			'force-height': 'true',
-			'visible': 1
+			'visible': 1,
+			'interval': false
 		};
 
 		for(var opt in options){
@@ -76,7 +77,8 @@ function zkCheckSlides(){
 			'slides': subslides,
 			'current': 1,
 			'queue': [],
-			'moving': false
+			'moving': false,
+			'interval': false
 		};
 
 		slides[i].setAttribute('zkslide-set', k);
@@ -84,6 +86,14 @@ function zkCheckSlides(){
 		slides[i].style.display = 'inline-block';
 
 		zkFillStaticSlide(k, zkSlides[k].current);
+
+		if(options['interval']){
+			zkSlides[k].interval = setInterval((function(k){
+				return function(){
+					zkMoveSlide(k, '+1');
+				};
+			})(k), options['interval']);
+		}
 	}
 }
 
