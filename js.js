@@ -5,9 +5,22 @@ window.addEventListener('load', function(){
 	for(var i in slides){
 		if(!slides.hasOwnProperty(i)) continue;
 
-		var k = 0;
-		while(typeof zkSlides[k]!='undefined')
-			k++;
+		if(slides[i].getAttribute('data-id')){
+			var k = slides[i].getAttribute('data-id');
+			if(parseInt(k).toString()==k){
+				alert('The slide id cannot be numeric.');
+				continue;
+			}
+			if(typeof zkSlides[k]!='undefined'){
+				alert('Duplicated slide id '+k+'.');
+				continue;
+			}
+		}else{
+			var k = 0;
+			while(typeof zkSlides[k]!='undefined')
+				k++;
+		}
+
 
 		var options = {
 			'width': null,
