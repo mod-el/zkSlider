@@ -31,7 +31,8 @@ function zkCheckSlides(){
 			'force-width': 'true',
 			'force-height': 'true',
 			'visible': 1,
-			'interval': false
+			'interval': false,
+			'step': 1
 		};
 
 		for(var opt in options){
@@ -90,7 +91,7 @@ function zkCheckSlides(){
 		if(options['interval']){
 			zkSlides[k].interval = setInterval((function(k){
 				return function(){
-					zkMoveSlide(k, '+1');
+					zkMoveSlide(k, zkSlides[k].options['step']>0 ? '+'+zkSlides[k].options['step']: zkSlides[k].options['step']);
 				};
 			})(k), options['interval']);
 		}
@@ -441,6 +442,8 @@ function zkPrepareToMove(k, from, type){
 function zkNormalizeN(k, n){
 	if(typeof zkSlides[k]=='undefined')
 		return false;
+	if(zkSlides[k].slides.length==0)
+		return n;
 
 	while(n<1)
 		n += zkSlides[k].slides.length;
