@@ -51,6 +51,8 @@ The possible attributes are the following:
 	For example, if the whole slider is 800px large, and there are 2 slides visible, every slide will be 400px.
 - interval (default false):
 	Set to the number of milliseconds you want to have as the interval between one slide and the next one.
+- step (default 1):
+    Number of slides to move together in the auto-scroll, if it was set above. 
 
 # Moving the slider
 
