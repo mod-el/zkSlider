@@ -52,7 +52,12 @@ The possible attributes are the following:
 - interval (default false):
 	Set to the number of milliseconds you want to have as the interval between one slide and the next one.
 - step (default 1):
-    Number of slides to move together in the auto-scroll, if it was set above. 
+    Number of slides to move together in the auto-scroll, if it was set above.
+ - callback (default empty):
+     You can set a JavaScript callback that will be called every time the slider moves (either manually or with the auto-interval).
+     It takes a single parameter, representing the index of the slide it has moved to.
+     It is also called at the page loading, with the index of the initial slide.
+     It should be set in this form: data-callback="function(n){ /* your code here */ }"
 
 # Moving the slider
 

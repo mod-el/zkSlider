@@ -22,7 +22,6 @@ function zkCheckSlides(){
 				k++;
 		}
 
-
 		var options = {
 			'width': null,
 			'height': null,
@@ -32,7 +31,8 @@ function zkCheckSlides(){
 			'force-height': 'true',
 			'visible': 1,
 			'interval': false,
-			'step': 1
+			'step': 1,
+			'callback': false
 		};
 
 		for(var opt in options){
@@ -71,6 +71,10 @@ function zkCheckSlides(){
 		if(options['height']!==null)
 			slides[i].style.height = options['height'];
 
+		if(options['callback']){
+			eval("options['callback'] = "+options['callback']);
+		}
+
 		zkSlides[k] = {
 			'mainCont': slides[i],
 			'cont': cont,
@@ -87,6 +91,10 @@ function zkCheckSlides(){
 		slides[i].style.display = 'inline-block';
 
 		zkFillStaticSlide(k, zkSlides[k].current);
+
+		if(zkSlides[k].options['callback']){
+			zkSlides[k].options['callback'].call(zkSlides[k], zkSlides[k].current);
+		}
 
 		if(options['interval']){
 			zkSlides[k].interval = setInterval((function(k){
@@ -182,34 +190,38 @@ function zkActualMoveSlide(k, n){
 			var forResize = prep;
 			break;
 		case 'left': case 'up':
-			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
-			if(type=='up')
-				zkSlides[k].cont.style.top = '0px';
-			else
-				zkSlides[k].cont.style.left = '0px';
-			var forResize = prep;
-			break;
+		zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
+		if(type=='up')
+			zkSlides[k].cont.style.top = '0px';
+		else
+			zkSlides[k].cont.style.left = '0px';
+		var forResize = prep;
+		break;
 		case 'right': case 'down':
-			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
-			var w = 0, c = 0, forResize = [];
-			for(var i in zkSlides[k].cont.children){
-				if(!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
-				c++;
-				if(c<prep){
-					w += type=='down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
-				}
-				if(c>=prep){
-					forResize.push(zkSlides[k].cont.children[i]);
-				}
+		zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class')+' animate';
+		var w = 0, c = 0, forResize = [];
+		for(var i in zkSlides[k].cont.children){
+			if(!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
+			c++;
+			if(c<prep){
+				w += type=='down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
 			}
-			if(type=='down')
-				zkSlides[k].cont.style.top = (-w)+'px';
-			else
-				zkSlides[k].cont.style.left = (-w)+'px';
-			break;
+			if(c>=prep){
+				forResize.push(zkSlides[k].cont.children[i]);
+			}
+		}
+		if(type=='down')
+			zkSlides[k].cont.style.top = (-w)+'px';
+		else
+			zkSlides[k].cont.style.left = (-w)+'px';
+		break;
 	}
 
 	zkSlideResize(k, forResize);
+
+	if(zkSlides[k].options['callback']){
+		zkSlides[k].options['callback'].call(zkSlides[k], n);
+	}
 
 	setTimeout((function(k, n){
 		return function(){
@@ -355,87 +367,87 @@ function zkPrepareToMove(k, from, type){
 			return divs;
 			break;
 		case 'left': case 'up':
-			// To scroll towards the left/upperwards, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
-			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from;
-			zkSlides[k].cont.innerHTML = '';
+		// To scroll towards the left/upperwards, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
+		var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from;
+		zkSlides[k].cont.innerHTML = '';
 
-			var last_one = false, n_found = false, w = 0, divs = [];
-			do{
-				var div = zkGetSlideDiv(k, n);
-				div = zkSlides[k].cont.appendChild(div);
+		var last_one = false, n_found = false, w = 0, divs = [];
+		do{
+			var div = zkGetSlideDiv(k, n);
+			div = zkSlides[k].cont.appendChild(div);
 
-				if(n==zkSlides[k].current){
-					n_found = true;
-				}else if(!n_found){
-					w += type=='up' ? div.offsetHeight : div.offsetWidth;
-				}
-
-				if(divs.length<parseInt(zkSlides[k].options['visible']))
-					divs.push(div);
-
-				if(last_one)
-					break;
-				n = zkNormalizeN(k, n+1);
-				if(n==end_vis)
-					last_one = true;
-			}while(true);
-
-			if(type=='up'){
-				zkSlides[k].cont.style.top = (-w)+'px';
-			}else{
-				zkSlides[k].cont.style.left = (-w)+'px';
+			if(n==zkSlides[k].current){
+				n_found = true;
+			}else if(!n_found){
+				w += type=='up' ? div.offsetHeight : div.offsetWidth;
 			}
-			zkSlides[k].cont.offsetWidth; // Reflow
 
-			return divs;
-			break;
+			if(divs.length<parseInt(zkSlides[k].options['visible']))
+				divs.push(div);
+
+			if(last_one)
+				break;
+			n = zkNormalizeN(k, n+1);
+			if(n==end_vis)
+				last_one = true;
+		}while(true);
+
+		if(type=='up'){
+			zkSlides[k].cont.style.top = (-w)+'px';
+		}else{
+			zkSlides[k].cont.style.left = (-w)+'px';
+		}
+		zkSlides[k].cont.offsetWidth; // Reflow
+
+		return divs;
+		break;
 		case 'right': case 'down':
-			// To move towards the right/downwards...
-			var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from, scrollTo = 1;
+		// To move towards the right/downwards...
+		var end_vis = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])-1), n = from, scrollTo = 1;
 
-			var inCurrentView = false, end_reached = false;
-			for(c=zkSlides[k].current;!end_reached;c=zkNormalizeN(k, c+1)){
-				if(c==n)
-					inCurrentView = true;
-				if(c==end_vis)
-					end_reached = true;
+		var inCurrentView = false, end_reached = false;
+		for(c=zkSlides[k].current;!end_reached;c=zkNormalizeN(k, c+1)){
+			if(c==n)
+				inCurrentView = true;
+			if(c==end_vis)
+				end_reached = true;
+		}
+
+		if(inCurrentView){
+			// If the requested slide is in the current view, I know I'll have to scroll to it, and add the remaining slides after the last one
+			var temp = zkSlides[k].current;
+			while(temp!=n){
+				temp = zkNormalizeN(k, temp+1);
+				scrollTo++;
 			}
 
-			if(inCurrentView){
-				// If the requested slide is in the current view, I know I'll have to scroll to it, and add the remaining slides after the last one
-				var temp = zkSlides[k].current;
-				while(temp!=n){
-					temp = zkNormalizeN(k, temp+1);
-					scrollTo++;
-				}
-
-				var showed = 0;
-				while(showed<parseInt(zkSlides[k].options['visible'])){
-					if(!zkSlides[k].cont.querySelector('[data-zkslide-'+k+'-n="'+n+'"]')) {
-						var div = zkGetSlideDiv(k, n);
-						div = zkSlides[k].cont.appendChild(div);
-					}
-					showed++;
-					n = zkNormalizeN(k, n+1);
-				}
-			}else{
-				// If the requested slide is past the current view, I add as many slide as needed to cover the new view
-				var n = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])), end = zkNormalizeN(k, from+parseInt(zkSlides[k].options['visible'])-1), found = false;
-				scrollTo = parseInt(zkSlides[k].options['visible']);
-				while(true){
+			var showed = 0;
+			while(showed<parseInt(zkSlides[k].options['visible'])){
+				if(!zkSlides[k].cont.querySelector('[data-zkslide-'+k+'-n="'+n+'"]')) {
 					var div = zkGetSlideDiv(k, n);
 					div = zkSlides[k].cont.appendChild(div);
-					if(!found)
-						scrollTo++;
-					if(n==end)
-						break;
-					if(n==from)
-						found = true;
-					n = zkNormalizeN(k, n+1);
 				}
+				showed++;
+				n = zkNormalizeN(k, n+1);
 			}
-			return scrollTo;
-			break;
+		}else{
+			// If the requested slide is past the current view, I add as many slide as needed to cover the new view
+			var n = zkNormalizeN(k, zkSlides[k].current+parseInt(zkSlides[k].options['visible'])), end = zkNormalizeN(k, from+parseInt(zkSlides[k].options['visible'])-1), found = false;
+			scrollTo = parseInt(zkSlides[k].options['visible']);
+			while(true){
+				var div = zkGetSlideDiv(k, n);
+				div = zkSlides[k].cont.appendChild(div);
+				if(!found)
+					scrollTo++;
+				if(n==end)
+					break;
+				if(n==from)
+					found = true;
+				n = zkNormalizeN(k, n+1);
+			}
+		}
+		return scrollTo;
+		break;
 	}
 }
 
