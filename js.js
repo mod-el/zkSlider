@@ -41,6 +41,12 @@ function zkCheckSlides(){
 				options[opt] = slides[i].getAttribute('data-'+opt);
 		}
 
+		slides[i].style.display = 'inline-block';
+		if(slides[i].offsetParent===null){
+			slides[i].style.display = 'none';
+			continue;
+		}
+
 		var subslides = [];
 		while(typeof slides[i].children[0]!='undefined'){
 			subslides.push(slides[i].removeChild(slides[i].children[0]));
@@ -66,6 +72,7 @@ function zkCheckSlides(){
 				var cont = slides[i];
 				break;
 		}
+
 		if(options['width']!==null)
 			slides[i].style.width = options['width'];
 		if(options['height']!==null)
@@ -87,8 +94,6 @@ function zkCheckSlides(){
 		};
 
 		slides[i].setAttribute('data-zkslide-set', k);
-
-		slides[i].style.display = 'inline-block';
 
 		zkFillStaticSlide(k, zkSlides[k].current);
 
@@ -482,3 +487,4 @@ function zkGetSingleSlideDimension(k){
 
 	return {'w':w, 'h':h};
 }
+
