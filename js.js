@@ -101,21 +101,19 @@ function zkCheckSlides(){
 			zkSlides[k].options['callback'].call(zkSlides[k], zkSlides[k].current);
 		}
 
-		if(options['interval']){
-			zkSlides[k].interval = setInterval((function(k){
-				return function(){
-					zkMoveSlide(k, zkSlides[k].options['step']>0 ? '+'+zkSlides[k].options['step']: zkSlides[k].options['step']);
-				};
-			})(k), options['interval']);
-		}
+		zkSlideSetInterval(k);
 	}
 }
 
 window.addEventListener('load', zkCheckSlides);
 
-function zkMoveSlide(k, n) {
+function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] == 'undefined')
 		return false;
+	if(typeof resetInterval=='undefined')
+		resetInterval = true;
+	if(resetInterval)
+		zkSlideSetInterval(k);
 	zkSlides[k].queue.push(n);
 	zkCheckMoveQueue();
 }
@@ -488,3 +486,15 @@ function zkGetSingleSlideDimension(k){
 	return {'w':w, 'h':h};
 }
 
+function zkSlideSetInterval(k){
+	if(zkSlides[k].options['interval']){
+		if(zkSlides[k].interval)
+			clearInterval(zkSlides[k].interval);
+
+		zkSlides[k].interval = setInterval((function(k){
+			return function(){
+				zkMoveSlide(k, zkSlides[k].options['step']>0 ? '+'+zkSlides[k].options['step']: zkSlides[k].options['step'], false);
+			};
+		})(k), zkSlides[k].options['interval']);
+	}
+}
