@@ -105,7 +105,7 @@ function zkCheckSlides(){
 	}
 }
 
-window.addEventListener('load', zkCheckSlides);
+window.addEventListener('DOMContentLoaded', zkCheckSlides);
 
 function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] == 'undefined')
