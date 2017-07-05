@@ -41,7 +41,7 @@ function zkCheckSlides(){
 				options[opt] = slides[i].getAttribute('data-'+opt);
 		}
 
-		slides[i].style.display = 'inline-block';
+		slides[i].style.display = 'block';
 		if(slides[i].offsetParent===null){
 			slides[i].style.display = 'none';
 			continue;
