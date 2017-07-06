@@ -30,6 +30,7 @@
 
 .zkslide-inner.horizontal > div{
     display: inline-block;
+    white-space: normal;
 }
 
 .zkslide-inner.animate{
