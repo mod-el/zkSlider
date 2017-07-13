@@ -289,13 +289,18 @@ function zkSlideResize(k, divs){
 
 	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
 
-	for(var i in divs){
-		if(!divs.hasOwnProperty(i)) continue;
-		totalW += divs[i].offsetWidth;
-		totalH += divs[i].offsetHeight;
-		maxW = Math.max(maxW, divs[i].offsetWidth);
-		maxH = Math.max(maxH, divs[i].offsetHeight);
-	}
+	divs.forEach(function(div){
+		totalW += div.offsetWidth;
+		totalH += div.offsetHeight;
+		maxW = Math.max(maxW, div.offsetWidth);
+		maxH = Math.max(maxH, div.offsetHeight);
+
+		div.querySelectorAll('img').forEach(function(img){
+			img.addEventListener('load', function(){
+				zkSlideResize(k, divs);
+			});
+		});
+	});
 
 	if(w===null){
 		if(zkSlides[k].options['type']=='fade' || zkSlides[k].options['direction']=='o'){
