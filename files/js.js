@@ -41,7 +41,7 @@ function zkCheckSlides(){
 				options[opt] = slides[i].getAttribute('data-'+opt);
 		}
 
-		slides[i].style.display = 'inline-block';
+		slides[i].style.display = 'block';
 		if(slides[i].offsetParent===null){
 			slides[i].style.display = 'none';
 			continue;
@@ -101,21 +101,19 @@ function zkCheckSlides(){
 			zkSlides[k].options['callback'].call(zkSlides[k], zkSlides[k].current);
 		}
 
-		if(options['interval']){
-			zkSlides[k].interval = setInterval((function(k){
-				return function(){
-					zkMoveSlide(k, zkSlides[k].options['step']>0 ? '+'+zkSlides[k].options['step']: zkSlides[k].options['step']);
-				};
-			})(k), options['interval']);
-		}
+		zkSlideSetInterval(k);
 	}
 }
 
-window.addEventListener('load', zkCheckSlides);
+window.addEventListener('DOMContentLoaded', zkCheckSlides);
 
-function zkMoveSlide(k, n) {
+function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] == 'undefined')
 		return false;
+	if(typeof resetInterval=='undefined')
+		resetInterval = true;
+	if(resetInterval)
+		zkSlideSetInterval(k);
 	zkSlides[k].queue.push(n);
 	zkCheckMoveQueue();
 }
@@ -291,13 +289,18 @@ function zkSlideResize(k, divs){
 
 	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
 
-	for(var i in divs){
-		if(!divs.hasOwnProperty(i)) continue;
-		totalW += divs[i].offsetWidth;
-		totalH += divs[i].offsetHeight;
-		maxW = Math.max(maxW, divs[i].offsetWidth);
-		maxH = Math.max(maxH, divs[i].offsetHeight);
-	}
+	divs.forEach(function(div){
+		totalW += div.offsetWidth;
+		totalH += div.offsetHeight;
+		maxW = Math.max(maxW, div.offsetWidth);
+		maxH = Math.max(maxH, div.offsetHeight);
+
+		div.querySelectorAll('img').forEach(function(img){
+			img.addEventListener('load', function(){
+				zkSlideResize(k, divs);
+			});
+		});
+	});
 
 	if(w===null){
 		if(zkSlides[k].options['type']=='fade' || zkSlides[k].options['direction']=='o'){
@@ -486,4 +489,17 @@ function zkGetSingleSlideDimension(k){
 	}
 
 	return {'w':w, 'h':h};
+}
+
+function zkSlideSetInterval(k){
+	if(zkSlides[k].options['interval']){
+		if(zkSlides[k].interval)
+			clearInterval(zkSlides[k].interval);
+
+		zkSlides[k].interval = setInterval((function(k){
+			return function(){
+				zkMoveSlide(k, zkSlides[k].options['step']>0 ? '+'+zkSlides[k].options['step']: zkSlides[k].options['step'], false);
+			};
+		})(k), zkSlides[k].options['interval']);
+	}
 }
