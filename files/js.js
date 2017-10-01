@@ -289,6 +289,11 @@ function zkSlideResize(k, divs){
 
 	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
 
+	if(w===null)
+		zkSlides[k].mainCont.style.width = 'auto';
+	if(h===null)
+		zkSlides[k].mainCont.style.height = 'auto';
+
 	divs.forEach(function(div){
 		totalW += div.offsetWidth;
 		totalH += div.offsetHeight;
