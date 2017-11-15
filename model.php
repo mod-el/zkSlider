@@ -4,4 +4,10 @@ $moduleData = [
 	'description' => 'Easy-to-use JavaScript slider',
 	'version' => '0.1.0',
 	'dependencies' => [],
+	'js' => [
+		'files/js.js',
+	],
+	'css' => [
+		'files/style.css',
+	],
 ];
