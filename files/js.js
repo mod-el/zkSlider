@@ -293,8 +293,10 @@ function zkSlideResize(k, divs) {
 
 	if (w === null)
 		zkSlides[k].mainCont.style.width = 'auto';
-	if (h === null)
+	if (h === null) {
+		zkSlides[k].mainCont.style.marginBottom = zkSlides[k].mainCont.offsetHeight + 'px';
 		zkSlides[k].mainCont.style.height = 'auto';
+	}
 
 	divs.forEach(function (div) {
 		totalW += div.offsetWidth;
@@ -320,6 +322,8 @@ function zkSlideResize(k, divs) {
 	}
 
 	if (h === null) {
+		zkSlides[k].mainCont.style.marginBottom = '0';
+
 		if (zkSlides[k].options['type'] == 'fade' || zkSlides[k].options['direction'] == 'o') {
 			var height = maxH + 'px';
 		} else {
