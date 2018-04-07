@@ -291,6 +291,9 @@ function zkSlideResize(k, divs) {
 
 	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
 
+	var prevW = zkSlides[k].mainCont.offsetWidth;
+	var prevH = zkSlides[k].mainCont.offsetHeight;
+
 	if (w === null)
 		zkSlides[k].mainCont.style.width = 'auto';
 	if (h === null) {
@@ -333,9 +336,14 @@ function zkSlideResize(k, divs) {
 		var height = h;
 	}
 
+	if(prevW)
+		zkSlides[k].mainCont.style.width = prevW + 'px';
+	if(prevH)
+		zkSlides[k].mainCont.style.height = prevH + 'px';
+	zkSlides[k].mainCont.offsetWidth; // Reflow
 	zkSlides[k].mainCont.style.width = width;
 	zkSlides[k].mainCont.style.height = height;
-	if (zkSlides[k].options['type'] == 'slide') {
+	if (zkSlides[k].options['type'] === 'slide') {
 		zkSlides[k].cont.style.minWidth = width;
 		zkSlides[k].cont.style.minHeight = height;
 	}
