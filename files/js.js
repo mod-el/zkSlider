@@ -106,12 +106,12 @@ function zkCheckSlides() {
 }
 
 window.addEventListener('DOMContentLoaded', zkCheckSlides);
-window.addEventListener('resize', function () {
+window.addEventListener('resize', zkSlideDebounce(function () {
 	for (var k in zkSlides) {
 		if (!zkSlides.hasOwnProperty(k)) continue;
 		zkFillStaticSlide(k, zkSlides[k].current);
 	}
-});
+}, 100));
 
 function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] == 'undefined')
@@ -314,9 +314,9 @@ function zkSlideResize(k, divs) {
 		maxH = Math.max(maxH, div.offsetHeight);
 
 		div.querySelectorAll('img').forEach(function (img) {
-			img.addEventListener('load', function () {
+			img.addEventListener('load', zkSlideDebounce(function () {
 				zkSlideResize(k, divs);
-			});
+			}, 200));
 		});
 	});
 
@@ -531,4 +531,19 @@ function zkSlideSetInterval(k) {
 			};
 		})(k), zkSlides[k].options['interval']);
 	}
+}
+
+function zkSlideDebounce(func, wait, immediate) {
+	var timeout;
+	return function () {
+		var context = this, args = arguments;
+		var later = function () {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
 }
