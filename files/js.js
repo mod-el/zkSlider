@@ -106,6 +106,12 @@ function zkCheckSlides() {
 }
 
 window.addEventListener('DOMContentLoaded', zkCheckSlides);
+window.addEventListener('resize', zkSlideDebounce(function () {
+	for (var k in zkSlides) {
+		if (!zkSlides.hasOwnProperty(k)) continue;
+		zkFillStaticSlide(k, zkSlides[k].current);
+	}
+}, 100));
 
 function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] == 'undefined')
@@ -291,6 +297,9 @@ function zkSlideResize(k, divs) {
 
 	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
 
+	var prevW = zkSlides[k].mainCont.offsetWidth;
+	var prevH = zkSlides[k].mainCont.offsetHeight;
+
 	if (w === null)
 		zkSlides[k].mainCont.style.width = 'auto';
 	if (h === null) {
@@ -305,9 +314,9 @@ function zkSlideResize(k, divs) {
 		maxH = Math.max(maxH, div.offsetHeight);
 
 		div.querySelectorAll('img').forEach(function (img) {
-			img.addEventListener('load', function () {
+			img.addEventListener('load', zkSlideDebounce(function () {
 				zkSlideResize(k, divs);
-			});
+			}, 200));
 		});
 	});
 
@@ -333,9 +342,14 @@ function zkSlideResize(k, divs) {
 		var height = h;
 	}
 
+	if (prevW)
+		zkSlides[k].mainCont.style.width = prevW + 'px';
+	if (prevH)
+		zkSlides[k].mainCont.style.height = prevH + 'px';
+	zkSlides[k].mainCont.offsetWidth; // Reflow
 	zkSlides[k].mainCont.style.width = width;
 	zkSlides[k].mainCont.style.height = height;
-	if (zkSlides[k].options['type'] == 'slide') {
+	if (zkSlides[k].options['type'] === 'slide') {
 		zkSlides[k].cont.style.minWidth = width;
 		zkSlides[k].cont.style.minHeight = height;
 	}
@@ -517,4 +531,19 @@ function zkSlideSetInterval(k) {
 			};
 		})(k), zkSlides[k].options['interval']);
 	}
+}
+
+function zkSlideDebounce(func, wait, immediate) {
+	var timeout;
+	return function () {
+		var context = this, args = arguments;
+		var later = function () {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
 }
