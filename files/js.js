@@ -106,6 +106,12 @@ function zkCheckSlides() {
 }
 
 window.addEventListener('DOMContentLoaded', zkCheckSlides);
+window.addEventListener('resize', function () {
+	for (var k in zkSlides) {
+		if (!zkSlides.hasOwnProperty(k)) continue;
+		zkFillStaticSlide(k, zkSlides[k].current);
+	}
+});
 
 function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] == 'undefined')
@@ -336,9 +342,9 @@ function zkSlideResize(k, divs) {
 		var height = h;
 	}
 
-	if(prevW)
+	if (prevW)
 		zkSlides[k].mainCont.style.width = prevW + 'px';
-	if(prevH)
+	if (prevH)
 		zkSlides[k].mainCont.style.height = prevH + 'px';
 	zkSlides[k].mainCont.offsetWidth; // Reflow
 	zkSlides[k].mainCont.style.width = width;
