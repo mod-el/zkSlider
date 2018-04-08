@@ -113,6 +113,18 @@ window.addEventListener('resize', zkSlideDebounce(function () {
 	}
 }, 100));
 
+function zkSlideSetOptions(k, options) {
+	if (typeof zkSlides[k] === 'undefined')
+		return false;
+	for (var i in options) {
+		if (!options.hasOwnProperty(i)) continue;
+		zkSlides[k].options[i] = options[i];
+	}
+
+	zkSlideResize(k, []);
+	zkFillStaticSlide(k, zkSlides[k].current);
+}
+
 function zkMoveSlide(k, n, resetInterval) {
 	if (typeof zkSlides[k] === 'undefined')
 		return false;
