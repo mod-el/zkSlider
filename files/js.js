@@ -12,13 +12,13 @@ function zkCheckSlides() {
 				alert('The slide id cannot be numeric.');
 				continue;
 			}
-			if (typeof zkSlides[k] != 'undefined') {
+			if (typeof zkSlides[k] !== 'undefined') {
 				alert('Duplicated slide id ' + k + '.');
 				continue;
 			}
 		} else {
 			var k = 1;
-			while (typeof zkSlides[k] != 'undefined')
+			while (typeof zkSlides[k] !== 'undefined')
 				k++;
 		}
 
@@ -48,7 +48,7 @@ function zkCheckSlides() {
 		}
 
 		var subslides = [];
-		while (typeof slides[i].children[0] != 'undefined') {
+		while (typeof slides[i].children[0] !== 'undefined') {
 			subslides.push(slides[i].removeChild(slides[i].children[0]));
 		}
 
@@ -113,10 +113,22 @@ window.addEventListener('resize', zkSlideDebounce(function () {
 	}
 }, 100));
 
-function zkMoveSlide(k, n, resetInterval) {
-	if (typeof zkSlides[k] == 'undefined')
+function zkSlideSetOptions(k, options) {
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
-	if (typeof resetInterval == 'undefined')
+	for (var i in options) {
+		if (!options.hasOwnProperty(i)) continue;
+		zkSlides[k].options[i] = options[i];
+	}
+
+	zkSlideResize(k, []);
+	zkFillStaticSlide(k, zkSlides[k].current);
+}
+
+function zkMoveSlide(k, n, resetInterval) {
+	if (typeof zkSlides[k] === 'undefined')
+		return false;
+	if (typeof resetInterval === 'undefined')
 		resetInterval = true;
 	if (resetInterval)
 		zkSlideSetInterval(k);
@@ -125,7 +137,7 @@ function zkMoveSlide(k, n, resetInterval) {
 }
 
 function zkActualMoveSlide(k, n) {
-	if (typeof n == 'number' && n < 0)
+	if (typeof n === 'number' && n < 0)
 		n = n.toString();
 	var forceType = false;
 	if (typeof n == 'string') {
@@ -221,7 +233,7 @@ function zkActualMoveSlide(k, n) {
 					forResize.push(zkSlides[k].cont.children[i]);
 				}
 			}
-			if (type == 'down')
+			if (type === 'down')
 				zkSlides[k].cont.style.top = (-w) + 'px';
 			else
 				zkSlides[k].cont.style.left = (-w) + 'px';
@@ -237,7 +249,7 @@ function zkActualMoveSlide(k, n) {
 	setTimeout((function (k, n) {
 		return function () {
 			zkFillStaticSlide(k, n);
-			if (zkSlides[k].options['type'] == 'slide') {
+			if (zkSlides[k].options['type'] === 'slide') {
 				zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class');
 				zkSlides[k].cont.style.left = '0px';
 				zkSlides[k].cont.style.top = '0px';
@@ -260,7 +272,7 @@ function zkCheckMoveQueue() {
 }
 
 function zkFillStaticSlide(k, from) {
-	if (typeof zkSlides[k] == 'undefined')
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
 
 	var divsForResize = [];
@@ -281,7 +293,7 @@ function zkFillStaticSlide(k, from) {
 
 	zkSlideResize(k, divsForResize);
 
-	if (zkSlides[k].options['type'] == 'fade') {
+	if (zkSlides[k].options['type'] === 'fade') {
 		for (var i in divsForResize) {
 			if (!divsForResize.hasOwnProperty(i)) continue;
 			div.style.position = 'absolute';
@@ -292,7 +304,7 @@ function zkFillStaticSlide(k, from) {
 }
 
 function zkSlideResize(k, divs) {
-	if (typeof zkSlides[k] == 'undefined')
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
 
 	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
@@ -321,7 +333,7 @@ function zkSlideResize(k, divs) {
 	});
 
 	if (w === null) {
-		if (zkSlides[k].options['type'] == 'fade' || zkSlides[k].options['direction'] == 'o') {
+		if (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o') {
 			var width = totalW + 'px';
 		} else {
 			var width = maxW + 'px';
@@ -333,7 +345,7 @@ function zkSlideResize(k, divs) {
 	if (h === null) {
 		zkSlides[k].mainCont.style.marginBottom = '0';
 
-		if (zkSlides[k].options['type'] == 'fade' || zkSlides[k].options['direction'] == 'o') {
+		if (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o') {
 			var height = maxH + 'px';
 		} else {
 			var height = totalH + 'px';
@@ -356,16 +368,16 @@ function zkSlideResize(k, divs) {
 }
 
 function zkGetSlideDiv(k, n, offset) {
-	if (typeof zkSlides[k] == 'undefined')
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
-	if (typeof zkSlides[k].slides[n - 1] == 'undefined')
+	if (typeof zkSlides[k].slides[n - 1] === 'undefined')
 		return false;
-	if (typeof offset == 'undefined')
+	if (typeof offset === 'undefined')
 		offset = 0;
 	var div = document.createElement('div');
 	div.className = 'zkslide-single';
 	div.innerHTML = zkSlides[k].slides[n - 1].innerHTML;
-	if (zkSlides[k].options['type'] == 'fade') {
+	if (zkSlides[k].options['type'] === 'fade') {
 		div.style.top = '0px';
 		div.style.left = offset + 'px';
 		div.style.opacity = 1;
@@ -381,7 +393,7 @@ function zkGetSlideDiv(k, n, offset) {
 }
 
 function zkPrepareToMove(k, from, type) {
-	if (typeof zkSlides[k] == 'undefined')
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
 
 	switch (type) {
@@ -489,9 +501,9 @@ function zkPrepareToMove(k, from, type) {
 }
 
 function zkNormalizeN(k, n) {
-	if (typeof zkSlides[k] == 'undefined')
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
-	if (zkSlides[k].slides.length == 0)
+	if (zkSlides[k].slides.length === 0)
 		return n;
 
 	while (n < 1)
@@ -502,16 +514,16 @@ function zkNormalizeN(k, n) {
 }
 
 function zkGetSingleSlideDimension(k) {
-	if (typeof zkSlides[k] == 'undefined')
+	if (typeof zkSlides[k] === 'undefined')
 		return false;
 
-	if (zkSlides[k].options['force-width'] == 'true' && zkSlides[k].options['width'] !== null && (zkSlides[k].options['type'] == 'fade' || zkSlides[k].options['direction'] == 'o')) {
+	if (zkSlides[k].options['force-width'] === 'true' && zkSlides[k].options['width'] !== null && (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o')) {
 		var w = Math.floor(zkSlides[k].mainCont.offsetWidth / parseInt(zkSlides[k].options['visible'])) + 'px';
 	} else {
 		var w = null;
 	}
 
-	if (zkSlides[k].options['force-height'] == 'true' && zkSlides[k].options['height'] !== null && (zkSlides[k].options['type'] == 'slide' && zkSlides[k].options['direction'] == 'v')) {
+	if (zkSlides[k].options['force-height'] === 'true' && zkSlides[k].options['height'] !== null && (zkSlides[k].options['type'] === 'slide' && zkSlides[k].options['direction'] === 'v')) {
 		var h = Math.floor(zkSlides[k].mainCont.offsetHeight / parseInt(zkSlides[k].options['visible'])) + 'px';
 	} else {
 		var h = null;
