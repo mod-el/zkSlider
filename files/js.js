@@ -227,7 +227,7 @@ function zkActualMoveSlide(k, n) {
 				if (!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
 				c++;
 				if (c < prep) {
-					w += type == 'down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
+					w += type === 'down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
 				}
 				if (c >= prep) {
 					forResize.push(zkSlides[k].cont.children[i]);
@@ -414,7 +414,7 @@ function zkPrepareToMove(k, from, type) {
 		case 'left':
 		case 'up':
 			// To scroll towards the left/upperwards, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
-			var end_vis = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible']) - 1), n = from;
+			var end_vis = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible']) - 1), n = parseInt(from);
 			zkSlides[k].cont.innerHTML = '';
 
 			var last_one = false, n_found = false, w = 0, divs = [];
@@ -425,7 +425,7 @@ function zkPrepareToMove(k, from, type) {
 				if (n == zkSlides[k].current) {
 					n_found = true;
 				} else if (!n_found) {
-					w += type == 'up' ? div.offsetHeight : div.offsetWidth;
+					w += type === 'up' ? div.offsetHeight : div.offsetWidth;
 				}
 
 				if (divs.length < parseInt(zkSlides[k].options['visible']))
@@ -438,7 +438,7 @@ function zkPrepareToMove(k, from, type) {
 					last_one = true;
 			} while (true);
 
-			if (type == 'up') {
+			if (type === 'up') {
 				zkSlides[k].cont.style.top = (-w) + 'px';
 			} else {
 				zkSlides[k].cont.style.left = (-w) + 'px';
@@ -450,51 +450,36 @@ function zkPrepareToMove(k, from, type) {
 		case 'right':
 		case 'down':
 			// To move towards the right/downwards...
-			var end_vis = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible']) - 1), n = from,
-				scrollTo = 1;
+			var n = parseInt(from), scrollTo = 0;
 
-			var inCurrentView = false, end_reached = false;
-			for (c = zkSlides[k].current; !end_reached; c = zkNormalizeN(k, c + 1)) {
-				if (c == n)
-					inCurrentView = true;
-				if (c == end_vis)
-					end_reached = true;
-			}
-
-			if (inCurrentView) {
-				// If the requested slide is in the current view, I know I'll have to scroll to it, and add the remaining slides after the last one
-				var temp = zkSlides[k].current;
-				while (temp != n) {
-					temp = zkNormalizeN(k, temp + 1);
-					scrollTo++;
-				}
-
-				var showed = 0;
-				while (showed < parseInt(zkSlides[k].options['visible'])) {
-					if (!zkSlides[k].cont.querySelector('[data-zkslide-' + k + '-n="' + n + '"]')) {
-						var div = zkGetSlideDiv(k, n);
-						div = zkSlides[k].cont.appendChild(div);
-					}
-					showed++;
-					n = zkNormalizeN(k, n + 1);
-				}
-			} else {
-				// If the requested slide is past the current view, I add as many slide as needed to cover the new view
-				var n = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible'])),
-					end = zkNormalizeN(k, from + parseInt(zkSlides[k].options['visible']) - 1), found = false;
-				scrollTo = parseInt(zkSlides[k].options['visible']);
-				while (true) {
-					var div = zkGetSlideDiv(k, n);
+			// I need to add, at the end of the sliders, as many as slides are needed to reach the end of the new slider state
+			var c = zkSlides[k].current, end_vis = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible']) - 1), end_vis_reached = false, new_end = null, avoidInfiniteLoops = 0;
+			while (true) {
+				if (end_vis_reached) {
+					var div = zkGetSlideDiv(k, c);
 					div = zkSlides[k].cont.appendChild(div);
-					if (!found)
-						scrollTo++;
-					if (n == end)
-						break;
-					if (n == from)
-						found = true;
-					n = zkNormalizeN(k, n + 1);
 				}
+
+				if (c === end_vis)
+					end_vis_reached = true;
+
+				if (new_end === null)
+					scrollTo++;
+
+				if (c === n) {
+					new_end = zkNormalizeN(k, c + parseInt(zkSlides[k].options['visible']) - 1);
+				}
+
+				if (c === new_end)
+					break;
+
+				c = zkNormalizeN(k, c + 1);
+
+				avoidInfiniteLoops++;
+				if (avoidInfiniteLoops === 1000) // Security measure
+					return 0;
 			}
+
 			return scrollTo;
 			break;
 	}
