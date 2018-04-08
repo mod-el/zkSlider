@@ -65,3 +65,13 @@ Beside setting the interval for an auto-scrolling, you can manually move the sli
  - zkMoveSlide(id, 3): this will move the slider to the 3rd slide
  - zkMoveSlide(id, '+3'): this will move the slider forward by 3 slides (if you are on the 2nd one, you'll end up in the 5th)
  - zkMoveSlide(id, '-2'): this will move the slider backward by 2 slides (if you are on the 3rd one, you'll end up in the first)
+
+# Changing options
+
+The function zkSlideSetOptions(k, options) is available to change options "in runtime", after the slide has been initialized.
+For example, you could decrease the number of slides visible if the resolution of the screen gets too low.
+
+Usage:
+```javascript
+zkSlideSetOptions('your-slide-id', {'visible': 2});
+```
