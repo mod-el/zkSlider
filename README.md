@@ -19,7 +19,7 @@ The content of the slides can be virtually anything, from simple images to compl
 The slider is meant to costantly adapt to the content of the currently shown slides, so they have to have a certain width and height for it to read (either implicit, by its contents, or explicit, set with the options).
 
 # Options
-Every slider has a variety of options that can be set, via the "data-" attributes.
+Every slider has a variety of options that can be set, via the "data-" attributes.  
 So, for example, if I want to set the "width", I should set it this way:
 ```html
 <div class="zkslide" data-width="800px">
@@ -28,27 +28,34 @@ So, for example, if I want to set the "width", I should set it this way:
 The possible attributes are the following:
 
 - id:
-	Every slider in the page (you can have as many as you want in the page) has its own alphanumeric id.
+	Every slider in the page (you can have as many as you want in the page) has its own alphanumeric id.  
 	You can manually set it via this attribute, otherwise it will be auto-assigned as an auto-increment value.
 - width:
-	The width, in any accepted CSS unit (px, %, etc...), of the slider.
+	The width, in any accepted CSS unit (px, %, etc...), of the slider.  
 	If it's not declared, it will be set to auto, and the slider will try to adapt to the content of the slides.
 - height:
-	The height, in any accepted CSS unit (px, %, etc...), of the slider.
+	The height, in any accepted CSS unit (px, %, etc...), of the slider.  
 	If it's not declared, it will be set to auto, and the slider will try to adapt to the content of the slides.
 - type (default "slide"):
 	The type of transition; it can be either "slide" or "fade"
 - direction (default "o"):
 	In a "slide" type of transition, this attribute defines the direction of the transition ("o" for horizontal scrolling, "v" for vertical scrolling)
 - force-width (default "true"):
-	If set to "true" (as it is by default), the single slide width will be fixed to the width of the whole slider (or a fraction of it, in case of multiple visible slides).
+	If set to "true" (as it is by default), the single slide width will be fixed to the width of the whole slider (or a fraction of it, in case of multiple visible slides).  
 	Otherwise, every slide will be able to have its own width.
 - force-height (default "true"):
-	If set to "true" (as it is by default), the single slide height will be fixed to the width of the whole slider (or a fraction of it, in case of multiple visible slides).
+	If set to "true" (as it is by default), the single slide height will be fixed to the width of the whole slider (or a fraction of it, in case of multiple visible slides).  
 	Otherwise, every slide will be able to have its own height.
 - visible (default 1):
-	The number of slides simultaneously visible in the slider. In case of a forced width or height (depending on the direction), the slides will be sized to a fraction of the whole.
-	For example, if the whole slider is 800px large, and there are 2 slides visible, every slide will be 400px.
+	The number of slides simultaneously visible in the slider. In case of a forced width or height (depending on the direction), the slides will be sized to a fraction of the whole.  
+	For example, if the whole slider is 800px large, and there are 2 slides visible, every slide will be 400px.  
+	You can also pass a JSON object with the following format:
+	```
+	data-visible='{"768":1,"1024":2,"default":3}'
+	```
+	Meaning that for a screen resolution up to 768, one slide will be visible; up to 1024px, 2 slides will be visible; from 1024 onwards, 3 slides will be visible.  
+	You can specify as many steps as you want, but at least "default" must always be present.
+	
 - interval (default false):
 	Set to the number of milliseconds you want to have as the interval between one slide and the next one.
 - step (default 1):
@@ -61,14 +68,14 @@ The possible attributes are the following:
 
 # Moving the slider
 
-Beside setting the interval for an auto-scrolling, you can manually move the slider via the function zkMoveSlide, in three different ways:
- - zkMoveSlide(id, 3): this will move the slider to the 3rd slide
- - zkMoveSlide(id, '+3'): this will move the slider forward by 3 slides (if you are on the 2nd one, you'll end up in the 5th)
+Beside setting the interval for an auto-scrolling, you can manually move the slider via the function zkMoveSlide, in three different ways:  
+ - zkMoveSlide(id, 3): this will move the slider to the 3rd slide  
+ - zkMoveSlide(id, '+3'): this will move the slider forward by 3 slides (if you are on the 2nd one, you'll end up in the 5th)  
  - zkMoveSlide(id, '-2'): this will move the slider backward by 2 slides (if you are on the 3rd one, you'll end up in the first)
 
 # Changing options
 
-The function zkSlideSetOptions(k, options) is available to change options "in runtime", after the slide has been initialized.
+The function zkSlideSetOptions(k, options) is available to change options "in runtime", after the slide has been initialized.  
 For example, you could decrease the number of slides visible if the resolution of the screen gets too low.
 
 Usage:

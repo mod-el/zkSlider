@@ -37,8 +37,25 @@ function zkCheckSlides() {
 
 		for (var opt in options) {
 			if (!options.hasOwnProperty(opt)) continue;
-			if (slides[i].getAttribute('data-' + opt))
-				options[opt] = slides[i].getAttribute('data-' + opt);
+			if (slides[i].getAttribute('data-' + opt)) {
+				switch (opt) {
+					case 'visible':
+						options[opt] = JSON.parse(slides[i].getAttribute('data-' + opt));
+						if (typeof options[opt] === 'object') {
+							if (typeof options[opt]['default'] === 'undefined') {
+								console.error('Default value, in the slider option "visible", must be present');
+								options[opt] = 1;
+							}
+						}
+						break;
+					case 'callback':
+						eval("options[opt] = " + slides[i].getAttribute('data-' + opt));
+						break;
+					default:
+						options[opt] = slides[i].getAttribute('data-' + opt);
+						break;
+				}
+			}
 		}
 
 		slides[i].style.display = 'block';
@@ -77,10 +94,6 @@ function zkCheckSlides() {
 			slides[i].style.width = options['width'];
 		if (options['height'] !== null)
 			slides[i].style.height = options['height'];
-
-		if (options['callback']) {
-			eval("options['callback'] = " + options['callback']);
-		}
 
 		zkSlides[k] = {
 			'mainCont': slides[i],
@@ -227,7 +240,7 @@ function zkActualMoveSlide(k, n) {
 				if (!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
 				c++;
 				if (c < prep) {
-					w += type == 'down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
+					w += type === 'down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
 				}
 				if (c >= prep) {
 					forResize.push(zkSlides[k].cont.children[i]);
@@ -280,7 +293,7 @@ function zkFillStaticSlide(k, from) {
 	var offset = 0;
 	zkSlides[k].cont.innerHTML = '';
 
-	var min = Math.min(parseInt(zkSlides[k].options['visible']), zkSlides[k].slides.length);
+	var min = Math.min(zkGetVisibleSlides(k), zkSlides[k].slides.length);
 	for (i = 0; i < min; i++) {
 		var n = zkNormalizeN(k, from + i);
 		var div = zkGetSlideDiv(k, n, offset);
@@ -399,7 +412,7 @@ function zkPrepareToMove(k, from, type) {
 	switch (type) {
 		case 'fade':
 			var offset = 0, divs = [];
-			for (i = 0; i < parseInt(zkSlides[k].options['visible']); i++) {
+			for (i = 0; i < zkGetVisibleSlides(k); i++) {
 				var n = zkNormalizeN(k, from + i);
 				var div = zkGetSlideDiv(k, n, offset);
 				div.style.zIndex = -1;
@@ -414,7 +427,7 @@ function zkPrepareToMove(k, from, type) {
 		case 'left':
 		case 'up':
 			// To scroll towards the left/upperwards, I just add as many slide as needed to cover the range from the requested slide to the last slide in the view
-			var end_vis = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible']) - 1), n = from;
+			var end_vis = zkNormalizeN(k, zkSlides[k].current + zkGetVisibleSlides(k) - 1), n = parseInt(from);
 			zkSlides[k].cont.innerHTML = '';
 
 			var last_one = false, n_found = false, w = 0, divs = [];
@@ -425,10 +438,10 @@ function zkPrepareToMove(k, from, type) {
 				if (n == zkSlides[k].current) {
 					n_found = true;
 				} else if (!n_found) {
-					w += type == 'up' ? div.offsetHeight : div.offsetWidth;
+					w += type === 'up' ? div.offsetHeight : div.offsetWidth;
 				}
 
-				if (divs.length < parseInt(zkSlides[k].options['visible']))
+				if (divs.length < zkGetVisibleSlides(k))
 					divs.push(div);
 
 				if (last_one)
@@ -438,7 +451,7 @@ function zkPrepareToMove(k, from, type) {
 					last_one = true;
 			} while (true);
 
-			if (type == 'up') {
+			if (type === 'up') {
 				zkSlides[k].cont.style.top = (-w) + 'px';
 			} else {
 				zkSlides[k].cont.style.left = (-w) + 'px';
@@ -450,51 +463,36 @@ function zkPrepareToMove(k, from, type) {
 		case 'right':
 		case 'down':
 			// To move towards the right/downwards...
-			var end_vis = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible']) - 1), n = from,
-				scrollTo = 1;
+			var n = parseInt(from), scrollTo = 0;
 
-			var inCurrentView = false, end_reached = false;
-			for (c = zkSlides[k].current; !end_reached; c = zkNormalizeN(k, c + 1)) {
-				if (c == n)
-					inCurrentView = true;
-				if (c == end_vis)
-					end_reached = true;
-			}
-
-			if (inCurrentView) {
-				// If the requested slide is in the current view, I know I'll have to scroll to it, and add the remaining slides after the last one
-				var temp = zkSlides[k].current;
-				while (temp != n) {
-					temp = zkNormalizeN(k, temp + 1);
-					scrollTo++;
-				}
-
-				var showed = 0;
-				while (showed < parseInt(zkSlides[k].options['visible'])) {
-					if (!zkSlides[k].cont.querySelector('[data-zkslide-' + k + '-n="' + n + '"]')) {
-						var div = zkGetSlideDiv(k, n);
-						div = zkSlides[k].cont.appendChild(div);
-					}
-					showed++;
-					n = zkNormalizeN(k, n + 1);
-				}
-			} else {
-				// If the requested slide is past the current view, I add as many slide as needed to cover the new view
-				var n = zkNormalizeN(k, zkSlides[k].current + parseInt(zkSlides[k].options['visible'])),
-					end = zkNormalizeN(k, from + parseInt(zkSlides[k].options['visible']) - 1), found = false;
-				scrollTo = parseInt(zkSlides[k].options['visible']);
-				while (true) {
-					var div = zkGetSlideDiv(k, n);
+			// I need to add, at the end of the sliders, as many as slides are needed to reach the end of the new slider state
+			var c = zkSlides[k].current, end_vis = zkNormalizeN(k, zkSlides[k].current + zkGetVisibleSlides(k) - 1), end_vis_reached = false, new_end = null, avoidInfiniteLoops = 0;
+			while (true) {
+				if (end_vis_reached) {
+					var div = zkGetSlideDiv(k, c);
 					div = zkSlides[k].cont.appendChild(div);
-					if (!found)
-						scrollTo++;
-					if (n == end)
-						break;
-					if (n == from)
-						found = true;
-					n = zkNormalizeN(k, n + 1);
 				}
+
+				if (c === end_vis)
+					end_vis_reached = true;
+
+				if (new_end === null)
+					scrollTo++;
+
+				if (c === n) {
+					new_end = zkNormalizeN(k, c + zkGetVisibleSlides(k) - 1);
+				}
+
+				if (c === new_end)
+					break;
+
+				c = zkNormalizeN(k, c + 1);
+
+				avoidInfiniteLoops++;
+				if (avoidInfiniteLoops === 1000) // Security measure
+					return 0;
 			}
+
 			return scrollTo;
 			break;
 	}
@@ -518,13 +516,13 @@ function zkGetSingleSlideDimension(k) {
 		return false;
 
 	if (zkSlides[k].options['force-width'] === 'true' && zkSlides[k].options['width'] !== null && (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o')) {
-		var w = Math.floor(zkSlides[k].mainCont.offsetWidth / parseInt(zkSlides[k].options['visible'])) + 'px';
+		var w = Math.floor(zkSlides[k].mainCont.offsetWidth / zkGetVisibleSlides(k)) + 'px';
 	} else {
 		var w = null;
 	}
 
 	if (zkSlides[k].options['force-height'] === 'true' && zkSlides[k].options['height'] !== null && (zkSlides[k].options['type'] === 'slide' && zkSlides[k].options['direction'] === 'v')) {
-		var h = Math.floor(zkSlides[k].mainCont.offsetHeight / parseInt(zkSlides[k].options['visible'])) + 'px';
+		var h = Math.floor(zkSlides[k].mainCont.offsetHeight / zkGetVisibleSlides(k)) + 'px';
 	} else {
 		var h = null;
 	}
@@ -558,4 +556,41 @@ function zkSlideDebounce(func, wait, immediate) {
 		timeout = setTimeout(later, wait);
 		if (callNow) func.apply(context, args);
 	};
+}
+
+function zkGetVisibleSlides(k) {
+	if (typeof zkSlides[k] === 'undefined')
+		return 1;
+
+	if (typeof zkSlides[k].options['visible'] === 'object') {
+		var sizes = Object.keys(zkSlides[k].options['visible']).sort(function (a, b) {
+			a = parseInt(a);
+			b = parseInt(b);
+
+			if (isNaN(a))
+				return 1;
+			if (isNaN(b))
+				return -1;
+			if (a > b)
+				return 1;
+			if (a < b)
+				return -1;
+			return 0;
+		});
+
+		var toReturn = null;
+		sizes.forEach(function (s) {
+			if (toReturn !== null)
+				return;
+
+			var numericS = parseInt(s);
+
+			if (s === 'default' || window.innerWidth < numericS)
+				toReturn = parseInt(zkSlides[k].options['visible'][s]);
+		});
+
+		return (toReturn && !isNaN(toReturn)) ? toReturn : 1;
+	} else {
+		return parseInt(zkSlides[k].options['visible']);
+	}
 }
