@@ -255,13 +255,11 @@ function zkActualMoveSlide(k, n) {
 
 	zkSlideResize(k, forResize);
 
-	if (zkSlides[k].options['callback']) {
-		zkSlides[k].options['callback'].call(zkSlides[k], n);
-	}
-
 	setTimeout((function (k, n) {
 		return function () {
 			zkFillStaticSlide(k, n);
+			if (zkSlides[k].options['callback'])
+				zkSlides[k].options['callback'].call(zkSlides[k], n);
 			if (zkSlides[k].options['type'] === 'slide') {
 				zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class');
 				zkSlides[k].cont.style.left = '0px';
@@ -466,7 +464,8 @@ function zkPrepareToMove(k, from, type) {
 			var n = parseInt(from), scrollTo = 0;
 
 			// I need to add, at the end of the sliders, as many as slides are needed to reach the end of the new slider state
-			var c = zkSlides[k].current, end_vis = zkNormalizeN(k, zkSlides[k].current + zkGetVisibleSlides(k) - 1), end_vis_reached = false, new_end = null, avoidInfiniteLoops = 0;
+			var c = zkSlides[k].current, end_vis = zkNormalizeN(k, zkSlides[k].current + zkGetVisibleSlides(k) - 1),
+				end_vis_reached = false, new_end = null, avoidInfiniteLoops = 0;
 			while (true) {
 				if (end_vis_reached) {
 					var div = zkGetSlideDiv(k, c);
