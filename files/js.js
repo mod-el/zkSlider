@@ -336,7 +336,7 @@ function zkSlideResize(k, divs) {
 		maxW = Math.max(maxW, div.offsetWidth);
 		maxH = Math.max(maxH, div.offsetHeight);
 
-		div.querySelectorAll('img').forEach(function (img) {
+		Array.from(div.querySelectorAll('img')).forEach(function (img) {
 			img.addEventListener('load', zkSlideDebounce(function () {
 				zkSlideResize(k, divs);
 			}, 200));
