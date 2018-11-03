@@ -119,6 +119,8 @@ function zkCheckSlides() {
 }
 
 window.addEventListener('DOMContentLoaded', zkCheckSlides);
+if (typeof window.onHtmlChange !== 'undefined')
+	onHtmlChange(zkCheckSlides);
 window.addEventListener('resize', zkSlideDebounce(function () {
 	for (var k in zkSlides) {
 		if (!zkSlides.hasOwnProperty(k)) continue;
