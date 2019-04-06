@@ -44,7 +44,7 @@ The possible attributes are the following:
 	If set to "true" (as it is by default), the single slide width will be fixed to the width of the whole slider (or a fraction of it, in case of multiple visible slides).  
 	Otherwise, every slide will be able to have its own width.
 - force-height (default "true"):
-	If set to "true" (as it is by default), the single slide height will be fixed to the width of the whole slider (or a fraction of it, in case of multiple visible slides).  
+	If set to "true" (as it is by default), the single slide height will be fixed to the height of the whole slider (or a fraction of it, in case of multiple visible slides).  
 	Otherwise, every slide will be able to have its own height.
 - visible (default 1):
 	The number of slides simultaneously visible in the slider. In case of a forced width or height (depending on the direction), the slides will be sized to a fraction of the whole.  

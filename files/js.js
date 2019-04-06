@@ -522,7 +522,7 @@ function zkGetSingleSlideDimension(k) {
 		var w = null;
 	}
 
-	if (zkSlides[k].options['force-height'] === 'true' && zkSlides[k].options['height'] !== null && (zkSlides[k].options['type'] === 'slide' && zkSlides[k].options['direction'] === 'v')) {
+	if (zkSlides[k].options['force-height'] === 'true' && zkSlides[k].options['height'] !== null && (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'v')) {
 		var h = Math.floor(zkSlides[k].mainCont.offsetHeight / zkGetVisibleSlides(k)) + 'px';
 	} else {
 		var h = null;
