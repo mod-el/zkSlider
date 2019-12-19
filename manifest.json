@@ -1,13 +1,7 @@
 {
 	"name": "Slider",
 	"description": "Easy-to-use JavaScript slider",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"dependencies": {},
-	"js": [
-		"files/js.js"
-	],
-	"css": [
-		"files/style.css"
-	],
 	"assets-position": "foot"
 }
