@@ -32,7 +32,8 @@ function zkCheckSlides() {
 			'visible': 1,
 			'interval': false,
 			'step': 1,
-			'callback': false
+			'callback': false,
+			'start': 1
 		};
 
 		for (var opt in options) {
@@ -53,6 +54,8 @@ function zkCheckSlides() {
 						break;
 					default:
 						options[opt] = slides[i].getAttribute('data-' + opt);
+						if (['step', 'start'].includes(opt))
+							options[opt] = parseInt(options[opt]);
 						break;
 				}
 			}
@@ -100,7 +103,7 @@ function zkCheckSlides() {
 			'cont': cont,
 			'options': options,
 			'slides': subslides,
-			'current': 1,
+			'current': options.start,
 			'queue': [],
 			'moving': false,
 			'interval': false
@@ -110,9 +113,8 @@ function zkCheckSlides() {
 
 		zkFillStaticSlide(k, zkSlides[k].current);
 
-		if (zkSlides[k].options['callback']) {
+		if (zkSlides[k].options['callback'])
 			zkSlides[k].options['callback'].call(zkSlides[k], zkSlides[k].current);
-		}
 
 		zkSlideSetInterval(k);
 	}
