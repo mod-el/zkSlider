@@ -1,28 +1,28 @@
 var zkSlides = {};
 
 function zkCheckSlides() {
-	var slides = document.querySelectorAll('.zkslide');
-	for (var i in slides) {
-		if (!slides.hasOwnProperty(i)) continue;
-		if (slides[i].getAttribute('data-zkslide-set')) continue;
+	const sliders = document.querySelectorAll('.zkslide');
+	for (let slider of sliders) {
+		if (slider.getAttribute('data-zkslide-set')) continue;
 
-		if (slides[i].getAttribute('data-id')) {
-			var k = slides[i].getAttribute('data-id');
-			if (parseInt(k).toString() == k) {
+		let k;
+		if (slider.getAttribute('data-id')) {
+			k = slider.getAttribute('data-id');
+			if (parseInt(k).toString() === k) {
 				alert('The slide id cannot be numeric.');
 				continue;
 			}
 			if (typeof zkSlides[k] !== 'undefined') {
-				alert('Duplicated slide id ' + k + '.');
-				continue;
+				console.error('Duplicated slide id ' + k + '.');
+				delete zkSlides[k];
 			}
 		} else {
-			var k = 1;
+			k = 1;
 			while (typeof zkSlides[k] !== 'undefined')
 				k++;
 		}
 
-		var options = {
+		const options = {
 			'width': null,
 			'height': null,
 			'type': 'slide',
@@ -33,15 +33,15 @@ function zkCheckSlides() {
 			'interval': false,
 			'step': 1,
 			'callback': false,
-			'start': 1
+			'start': 1,
 		};
 
-		for (var opt in options) {
+		for (let opt in options) {
 			if (!options.hasOwnProperty(opt)) continue;
-			if (slides[i].getAttribute('data-' + opt)) {
+			if (slider.getAttribute('data-' + opt)) {
 				switch (opt) {
 					case 'visible':
-						options[opt] = JSON.parse(slides[i].getAttribute('data-' + opt));
+						options[opt] = JSON.parse(slider.getAttribute('data-' + opt));
 						if (typeof options[opt] === 'object') {
 							if (typeof options[opt]['default'] === 'undefined') {
 								console.error('Default value, in the slider option "visible", must be present');
@@ -50,10 +50,10 @@ function zkCheckSlides() {
 						}
 						break;
 					case 'callback':
-						eval("options[opt] = " + slides[i].getAttribute('data-' + opt));
+						eval("options[opt] = " + slider.getAttribute('data-' + opt));
 						break;
 					default:
-						options[opt] = slides[i].getAttribute('data-' + opt);
+						options[opt] = slider.getAttribute('data-' + opt);
 						if (['step', 'start'].includes(opt))
 							options[opt] = parseInt(options[opt]);
 						break;
@@ -61,20 +61,20 @@ function zkCheckSlides() {
 			}
 		}
 
-		slides[i].style.display = 'block';
-		if (slides[i].offsetParent === null) {
-			slides[i].style.display = 'none';
+		slider.style.display = 'block';
+		if (slider.offsetParent === null) {
+			slider.style.display = 'none';
 			continue;
 		}
 
-		var subslides = [];
-		while (typeof slides[i].children[0] !== 'undefined') {
-			subslides.push(slides[i].removeChild(slides[i].children[0]));
-		}
+		const subslides = [];
+		while (typeof slider.children[0] !== 'undefined')
+			subslides.push(slider.removeChild(slider.children[0]));
 
+		let cont;
 		switch (options['type']) {
 			case 'slide':
-				var cont = document.createElement('div');
+				cont = document.createElement('div');
 				switch (options['direction']) {
 					case 'o':
 						cont.className = 'zkslide-inner horizontal';
@@ -86,20 +86,20 @@ function zkCheckSlides() {
 				cont.setAttribute('data-default-class', cont.className);
 				cont.style.top = '0px';
 				cont.style.left = '0px';
-				cont = slides[i].appendChild(cont);
+				cont = slider.appendChild(cont);
 				break;
 			case 'fade':
-				var cont = slides[i];
+				cont = slider;
 				break;
 		}
 
 		if (options['width'] !== null)
-			slides[i].style.width = options['width'];
+			slider.style.width = options['width'];
 		if (options['height'] !== null)
-			slides[i].style.height = options['height'];
+			slider.style.height = options['height'];
 
 		zkSlides[k] = {
-			'mainCont': slides[i],
+			'mainCont': slider,
 			'cont': cont,
 			'options': options,
 			'slides': subslides,
@@ -109,7 +109,7 @@ function zkCheckSlides() {
 			'interval': false
 		};
 
-		slides[i].setAttribute('data-zkslide-set', k);
+		slider.setAttribute('data-zkslide-set', k);
 
 		zkFillStaticSlide(k, zkSlides[k].current);
 
@@ -133,7 +133,7 @@ window.addEventListener('resize', zkSlideDebounce(function () {
 function zkSlideSetOptions(k, options) {
 	if (typeof zkSlides[k] === 'undefined')
 		return false;
-	for (var i in options) {
+	for (let i in options) {
 		if (!options.hasOwnProperty(i)) continue;
 		zkSlides[k].options[i] = options[i];
 	}
@@ -156,18 +156,19 @@ function zkMoveSlide(k, n, resetInterval) {
 function zkActualMoveSlide(k, n) {
 	if (typeof n === 'number' && n < 0)
 		n = n.toString();
-	var forceType = false;
+
+	let forceType = false;
 	if (typeof n == 'string') {
-		var current = zkSlides[k].current;
-		if (n.charAt(0) == '-') {
+		let current = zkSlides[k].current;
+		if (n.charAt(0) === '-') {
 			forceType = '-';
-			var moveBy = parseInt(n.substr(1));
+			const moveBy = parseInt(n.substring(1));
 			if (isNaN(moveBy))
 				return false;
 			current -= moveBy;
-		} else if (n.charAt(0) == '+') {
+		} else if (n.charAt(0) === '+') {
 			forceType = '+';
-			var moveBy = parseInt(n.substr(1));
+			const moveBy = parseInt(n.substring(1));
 			if (isNaN(moveBy))
 				return false;
 			current += moveBy;
@@ -179,31 +180,31 @@ function zkActualMoveSlide(k, n) {
 	}
 
 	n = zkNormalizeN(k, n);
-	if (n == zkSlides[k].current)
+	if (n === zkSlides[k].current)
 		return true;
 
+	let type;
 	switch (zkSlides[k].options['type']) {
 		case 'slide':
 			switch (zkSlides[k].options['direction']) {
 				case 'o':
-					if (forceType === '+') var type = 'right';
-					else if (forceType === '-') var type = 'left';
-					else if (n < zkSlides[k].current) var type = 'left';
-					else var type = 'right';
+					if (forceType === '+') type = 'right';
+					else if (forceType === '-') type = 'left';
+					else if (n < zkSlides[k].current) type = 'left';
+					else type = 'right';
 					break;
 				case 'v':
-					if (forceType === '+') var type = 'down';
-					else if (forceType === '-') var type = 'up';
-					else if (n < zkSlides[k].current) var type = 'up';
-					else var type = 'down';
+					if (forceType === '+') type = 'down';
+					else if (forceType === '-') type = 'up';
+					else if (n < zkSlides[k].current) type = 'up';
+					else type = 'down';
 					break;
 				default:
-					return false;
-					break;
+					return;
 			}
 			break;
 		case 'fade':
-			var type = 'fade';
+			type = 'fade';
 			break;
 		default:
 			return false;
@@ -211,45 +212,45 @@ function zkActualMoveSlide(k, n) {
 	}
 
 	zkSlides[k].moving = true;
-	var prep = zkPrepareToMove(k, n, type);
+
+	const prep = zkPrepareToMove(k, n, type);
+	let forResize = prep;
+
 	switch (type) {
 		case 'fade':
-			for (var i in prep) {
+			for (let i in prep) {
 				if (!prep.hasOwnProperty(i)) continue;
 				prep[i].style.opacity = 1;
 			}
 
-			var currents = zkSlides[k].mainCont.querySelectorAll('[data-zkslide-' + k + '-current]');
-			for (var i in currents) {
+			const currents = zkSlides[k].mainCont.querySelectorAll('[data-zkslide-' + k + '-current]');
+			for (let i in currents) {
 				if (!currents.hasOwnProperty(i)) continue;
 				currents[i].style.opacity = 0;
 			}
-
-			var forResize = prep;
 			break;
 		case 'left':
 		case 'up':
 			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class') + ' animate';
-			if (type == 'up')
+			if (type === 'up')
 				zkSlides[k].cont.style.top = '0px';
 			else
 				zkSlides[k].cont.style.left = '0px';
-			var forResize = prep;
 			break;
 		case 'right':
 		case 'down':
 			zkSlides[k].cont.className = zkSlides[k].cont.getAttribute('data-default-class') + ' animate';
-			var w = 0, c = 0, forResize = [];
-			for (var i in zkSlides[k].cont.children) {
+			let w = 0, c = 0;
+			forResize = []
+			for (let i in zkSlides[k].cont.children) {
 				if (!zkSlides[k].cont.children.hasOwnProperty(i)) continue;
 				c++;
-				if (c < prep) {
+				if (c < prep)
 					w += type === 'down' ? zkSlides[k].cont.children[i].offsetHeight : zkSlides[k].cont.children[i].offsetWidth;
-				}
-				if (c >= prep) {
+				if (c >= prep)
 					forResize.push(zkSlides[k].cont.children[i]);
-				}
 			}
+
 			if (type === 'down')
 				zkSlides[k].cont.style.top = (-w) + 'px';
 			else
@@ -276,7 +277,7 @@ function zkActualMoveSlide(k, n) {
 }
 
 function zkCheckMoveQueue() {
-	for (var k in zkSlides) {
+	for (let k in zkSlides) {
 		if (!zkSlides.hasOwnProperty(k)) continue;
 		if (zkSlides[k].moving) continue;
 		if (zkSlides[k].queue.length > 0) {
@@ -290,15 +291,16 @@ function zkFillStaticSlide(k, from) {
 	if (typeof zkSlides[k] === 'undefined')
 		return false;
 
-	var divsForResize = [];
+	const divsForResize = [];
 
-	var offset = 0;
+	let offset = 0;
 	zkSlides[k].cont.innerHTML = '';
 
-	var min = Math.min(zkGetVisibleSlides(k), zkSlides[k].slides.length);
-	for (i = 0; i < min; i++) {
-		var n = zkNormalizeN(k, from + i);
-		var div = zkGetSlideDiv(k, n, offset);
+	const min = Math.min(zkGetVisibleSlides(k), zkSlides[k].slides.length);
+	for (let i = 0; i < min; i++) {
+		let n = zkNormalizeN(k, from + i),
+			div = zkGetSlideDiv(k, n, offset);
+
 		div = zkSlides[k].cont.appendChild(div);
 		div.setAttribute('data-zkslide-' + k + '-current', i);
 		div.setAttribute('data-zkslide-' + k + '-n', n);
@@ -309,10 +311,8 @@ function zkFillStaticSlide(k, from) {
 	zkSlideResize(k, divsForResize);
 
 	if (zkSlides[k].options['type'] === 'fade') {
-		for (var i in divsForResize) {
-			if (!divsForResize.hasOwnProperty(i)) continue;
+		for (let div of divsForResize)
 			div.style.position = 'absolute';
-		}
 	}
 
 	zkSlides[k].current = from;
@@ -322,10 +322,10 @@ function zkSlideResize(k, divs) {
 	if (typeof zkSlides[k] === 'undefined')
 		return false;
 
-	var w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
+	let w = zkSlides[k].options['width'], h = zkSlides[k].options['height'], totalW = 0, totalH = 0, maxW = 0, maxH = 0;
 
-	var prevW = zkSlides[k].mainCont.offsetWidth;
-	var prevH = zkSlides[k].mainCont.offsetHeight;
+	const prevW = zkSlides[k].mainCont.offsetWidth,
+		prevH = zkSlides[k].mainCont.offsetHeight;
 
 	if (w === null)
 		zkSlides[k].mainCont.style.width = 'auto';
@@ -334,39 +334,27 @@ function zkSlideResize(k, divs) {
 		zkSlides[k].mainCont.style.height = 'auto';
 	}
 
-	divs.forEach(function (div) {
+	for (const div of divs) {
 		totalW += div.offsetWidth;
 		totalH += div.offsetHeight;
 		maxW = Math.max(maxW, div.offsetWidth);
 		maxH = Math.max(maxH, div.offsetHeight);
 
-		Array.from(div.querySelectorAll('img')).forEach(function (img) {
-			img.addEventListener('load', zkSlideDebounce(function () {
+		for (const img of Array.from(div.querySelectorAll('img'))) {
+			img.addEventListener('load', zkSlideDebounce(() => {
 				zkSlideResize(k, divs);
 			}, 200));
-		});
-	});
-
-	if (w === null) {
-		if (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o') {
-			var width = totalW + 'px';
-		} else {
-			var width = maxW + 'px';
 		}
-	} else {
-		var width = w;
 	}
 
-	if (h === null) {
-		zkSlides[k].mainCont.style.marginBottom = '0';
+	let width = w;
+	if (width === null)
+		width = (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o') ? totalW + 'px' : maxW + 'px';
 
-		if (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o') {
-			var height = maxH + 'px';
-		} else {
-			var height = totalH + 'px';
-		}
-	} else {
-		var height = h;
+	let height = h;
+	if (height === null) {
+		zkSlides[k].mainCont.style.marginBottom = '0';
+		height = (zkSlides[k].options['type'] === 'fade' || zkSlides[k].options['direction'] === 'o') ? maxH + 'px' : totalH + 'px';
 	}
 
 	if (prevW)
@@ -389,7 +377,8 @@ function zkGetSlideDiv(k, n, offset) {
 		return false;
 	if (typeof offset === 'undefined')
 		offset = 0;
-	var div = document.createElement('div');
+
+	const div = document.createElement('div');
 	div.className = 'zkslide-single';
 	div.innerHTML = zkSlides[k].slides[n - 1].innerHTML;
 	if (zkSlides[k].options['type'] === 'fade') {
@@ -398,7 +387,7 @@ function zkGetSlideDiv(k, n, offset) {
 		div.style.opacity = 1;
 	}
 
-	var dimension = zkGetSingleSlideDimension(k);
+	const dimension = zkGetSingleSlideDimension(k);
 	if (dimension.w !== null)
 		div.style.width = dimension.w;
 	if (dimension.h !== null)
