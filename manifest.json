@@ -1,7 +1,7 @@
 {
 	"name": "Slider",
-	"description": "Easy-to-use JavaScript slider",
-	"version": "0.2.2",
+	"description": "DEPRECATED - Use model/slider instead",
+	"version": "0.3.0",
 	"dependencies": {},
 	"assets-position": "foot"
 }
